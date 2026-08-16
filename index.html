@@ -1,0 +1,1411 @@
+<html>
+    <head>
+        <title>om's WebOS!</title>
+        <style>
+            :root {
+                --bg: rgba(255,255,255,0.08);
+                --panel: rgba(20, 22, 30, 0.72);
+                --panel-light: rgba(255,255,255,0.64);
+                --panel-border: rgba(255,255,255,0.22);
+                --text: #ffffff;
+                --muted: rgba(255,255,255,0.75);
+                --taskbar: rgba(14, 15, 22, 0.62);
+                --taskbar-border: rgba(255,255,255,0.14);
+                --shadow: rgba(0,0,0,0.25);
+                --button: rgba(255,255,255,0.1);
+                --button-hover: rgba(255,255,255,0.18);
+                --accent: #7dd3fc;
+                --accent-2: #86efac;
+            }
+
+            body.light-mode {
+                --bg: rgba(255,255,255,0.42);
+                --panel: rgba(255,255,255,0.7);
+                --panel-light: rgba(255,255,255,0.85);
+                --panel-border: rgba(100,116,139,0.32);
+                --text: #111827;
+                --muted: rgba(17,24,39,0.72);
+                --taskbar: rgba(255,255,255,0.6);
+                --taskbar-border: rgba(15,23,42,0.18);
+                --shadow: rgba(15,23,42,0.15);
+                --button: rgba(15,23,42,0.06);
+                --button-hover: rgba(15,23,42,0.1);
+                --accent: #2563eb;
+                --accent-2: #0f766e;
+            }
+
+            html, body {
+                margin: 0;
+                min-height: 100%;
+                height: 100%;
+                font-family: Arial, sans-serif;
+            }
+
+            body {
+                background-image: url(./desktop.jfif);
+                background-size: cover;
+                background-position: center center;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                color: var(--text);
+            }
+
+            .taskbar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 42px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 18px;
+                box-sizing: border-box;
+                background: var(--taskbar);
+                border-bottom: 1px solid var(--taskbar-border);
+                backdrop-filter: blur(12px);
+                color: var(--text);
+                font-size: 14px;
+                letter-spacing: 0.5px;
+                z-index: 50;
+            }
+
+            .brand {
+                font-weight: bold;
+                opacity: 0.95;
+            }
+
+            .clock {
+                font-weight: 600;
+                opacity: 0.95;
+            }
+
+            .start-btn {
+                padding: 8px 12px;
+                border: 1px solid transparent;
+                border-radius: 10px;
+                background: var(--button);
+                cursor: pointer;
+                color: var(--text);
+                transition: 0.2s ease;
+            }
+
+            .start-btn:hover {
+                background: var(--button-hover);
+            }
+
+            .dock {
+                position: fixed;
+                left: 50%;
+                bottom: 16px;
+                transform: translateX(-50%);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 10px 14px;
+                border-radius: 18px;
+                background: rgba(31, 35, 47, 0.56);
+                border: 1px solid rgba(255,255,255,0.12);
+                backdrop-filter: blur(12px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                z-index: 45;
+            }
+
+            .dock-item {
+                width: 42px;
+                height: 42px;
+                border-radius: 12px;
+                background: linear-gradient(135deg, var(--accent), var(--accent-2));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
+                cursor: pointer;
+                transition: transform 0.2s ease;
+            }
+
+            .dock-item:hover {
+                transform: translateY(-2px);
+            }
+
+            .desktop {
+                position: relative;
+                width: 100%;
+                height: 100%;
+                padding-top: 70px;
+                box-sizing: border-box;
+            }
+
+            .desktop-icons {
+                position: absolute;
+                top: 80px;
+                left: 20px;
+                display: grid;
+                grid-template-columns: repeat(2, minmax(72px, 1fr));
+                gap: 18px 12px;
+                width: 170px;
+            }
+
+            .app-icon {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+                background: rgba(255,255,255,0.04);
+                border-radius: 14px;
+                padding: 10px 6px;
+                border: 1px solid rgba(255,255,255,0.05);
+                color: var(--text);
+                text-align: center;
+                font-size: 12px;
+                cursor: pointer;
+            }
+
+            .app-icon:hover {
+                background: rgba(255,255,255,0.09);
+            }
+
+            .icon-surface {
+                width: 42px;
+                height: 42px;
+                border-radius: 12px;
+                background: linear-gradient(135deg, var(--accent), var(--accent-2));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
+                display: grid;
+                place-items: center;
+                overflow: hidden;
+            }
+
+            .icon-surface svg {
+                width: 22px;
+                height: 22px;
+                display: block;
+                stroke: rgba(255,255,255,0.96);
+                fill: none;
+                stroke-width: 1.8;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+
+            .dock-item {
+                width: 42px;
+                height: 42px;
+                border-radius: 12px;
+                background: linear-gradient(135deg, var(--accent), var(--accent-2));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
+                cursor: pointer;
+                transition: transform 0.2s ease;
+                display: grid;
+                place-items: center;
+                overflow: hidden;
+            }
+
+            .dock-item svg {
+                width: 18px;
+                height: 18px;
+                stroke: rgba(255,255,255,0.96);
+                fill: none;
+                stroke-width: 1.8;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+
+            .window {
+                position: absolute;
+                background: var(--bg);
+                border: 1px solid var(--panel-border);
+                box-shadow: 0 10px 30px var(--shadow);
+                backdrop-filter: blur(18px);
+                border-radius: 18px;
+                overflow: hidden;
+                color: var(--text);
+                min-width: 260px;
+                min-height: 120px;
+            }
+
+            .window.hidden {
+                display: none;
+            }
+
+            .window-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 16px;
+                background: rgba(0,0,0,0.08);
+                border-bottom: 1px solid var(--panel-border);
+                font-size: 13px;
+                letter-spacing: 0.6px;
+                text-transform: uppercase;
+                cursor: move;
+            }
+
+            .window-controls {
+                display: flex;
+                gap: 8px;
+            }
+
+            .dot {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                display: inline-block;
+                cursor: pointer;
+                position: relative;
+            }
+
+            .dot:hover::after {
+                content: attr(data-tooltip);
+                position: absolute;
+                bottom: 16px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(15, 23, 42, 0.92);
+                color: white;
+                font-size: 10px;
+                padding: 4px 7px;
+                border-radius: 6px;
+                white-space: nowrap;
+                border: 1px solid rgba(255,255,255,0.12);
+                pointer-events: none;
+                z-index: 30;
+            }
+
+            .dot.red { background: #ff6b6b; }
+            .dot.yellow { background: #feca57; }
+            .dot.green { background: #48dbfb; }
+
+            .window-body {
+                padding: 28px 24px 30px;
+            }
+
+            .about-window {
+                background: rgba(15, 18, 24, 0.84);
+                border-color: rgba(148, 163, 184, 0.22);
+                backdrop-filter: blur(12px);
+            }
+
+            .about-shell {
+                display: grid;
+                grid-template-columns: 180px 1fr;
+                min-height: 340px;
+                gap: 0;
+                background: rgba(15, 23, 42, 0.14);
+            }
+
+            .file-sidebar {
+                padding: 16px 12px;
+                border-right: 1px solid rgba(255,255,255,0.08);
+                background: rgba(15, 23, 42, 0.12);
+            }
+
+            .file-sidebar h4 {
+                margin: 0 0 12px;
+                font-size: 12px;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                opacity: 0.72;
+            }
+
+            .file-actions {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+                margin-bottom: 14px;
+            }
+
+            .soft-btn {
+                border: 1px solid rgba(255,255,255,0.14);
+                background: rgba(255,255,255,0.06);
+                color: var(--text);
+                border-radius: 8px;
+                padding: 7px 10px;
+                cursor: pointer;
+                font-size: 12px;
+            }
+
+            .soft-btn:hover {
+                background: rgba(255,255,255,0.12);
+            }
+
+            .file-list {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .file-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 10px;
+                border-radius: 8px;
+                font-size: 13px;
+                cursor: pointer;
+                color: var(--text);
+                background: transparent;
+            }
+
+            .file-item:hover,
+            .file-item.active {
+                background: rgba(255,255,255,0.07);
+            }
+
+            .file-item-label {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .file-main {
+                display: flex;
+                flex-direction: column;
+                min-width: 0;
+            }
+
+            .file-preview {
+                flex: 1;
+                padding: 18px;
+                min-height: 220px;
+                background: rgba(2, 6, 23, 0.18);
+                color: var(--text);
+                font-size: 14px;
+                line-height: 1.6;
+                white-space: pre-wrap;
+                overflow: auto;
+            }
+
+            .download-row {
+                display: flex;
+                justify-content: flex-end;
+                padding: 10px 18px 16px;
+                border-top: 1px solid rgba(255,255,255,0.08);
+            }
+
+            .hello {
+                font-size: clamp(2.4rem, 5vw, 3.4rem);
+                font-weight: 700;
+                margin: 0 0 10px;
+                letter-spacing: 0.04em;
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+            .intro {
+                margin: 0;
+                color: var(--muted);
+                font-size: 1.04rem;
+                line-height: 1.7;
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+            .highlight {
+                color: var(--accent-2);
+                font-weight: 600;
+            }
+
+            .start-menu {
+                position: fixed;
+                left: 16px;
+                bottom: 58px;
+                width: 260px;
+                background: var(--panel);
+                border: 1px solid var(--panel-border);
+                border-radius: 18px;
+                box-shadow: 0 18px 40px var(--shadow);
+                backdrop-filter: blur(16px);
+                padding: 12px;
+                display: none;
+                z-index: 60;
+            }
+
+            .start-menu.open {
+                display: block;
+            }
+
+            .menu-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 10px 12px;
+                border-radius: 10px;
+                background: transparent;
+                cursor: pointer;
+                color: var(--text);
+            }
+
+            .menu-item:hover {
+                background: rgba(255,255,255,0.08);
+            }
+
+            .menu-icon {
+                width: 28px;
+                height: 28px;
+                border-radius: 8px;
+                background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            }
+
+            .window-panel {
+                position: absolute;
+                top: 180px;
+                left: 60%;
+                width: 300px;
+                background: var(--panel);
+                border: 1px solid var(--panel-border);
+                border-radius: 16px;
+                box-shadow: 0 12px 30px var(--shadow);
+                backdrop-filter: blur(14px);
+                overflow: hidden;
+                user-select: none;
+                color: var(--text);
+            }
+
+            .window-panel .window-header {
+                cursor: move;
+            }
+
+            .editor-window {
+                width: min(520px, calc(100% - 40px));
+                height: 420px;
+            }
+
+            .editor-toolbar {
+                display: flex;
+                justify-content: flex-end;
+                gap: 8px;
+                padding: 10px 12px 8px;
+                background: rgba(15, 23, 42, 0.18);
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+            }
+
+            .music-panel {
+                position: fixed;
+                right: 18px;
+                bottom: 78px;
+                width: min(320px, calc(100% - 24px));
+                background: rgba(15, 23, 42, 0.8);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 16px;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+                backdrop-filter: blur(12px);
+                padding: 12px 12px 10px;
+                z-index: 80;
+            }
+
+            .music-window {
+                width: min(420px, calc(100% - 30px));
+                height: 470px;
+            }
+
+            .music-window-body {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                padding: 14px 14px 18px;
+                height: calc(100% - 48px);
+                box-sizing: border-box;
+                background: rgba(15, 23, 42, 0.12);
+            }
+
+            .music-upload-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .upload-label {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 8px 12px;
+                border-radius: 10px;
+                border: 1px solid rgba(255,255,255,0.12);
+                background: rgba(255,255,255,0.06);
+                color: var(--text);
+                cursor: pointer;
+                font-size: 12px;
+            }
+
+            .music-library-list {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                overflow: auto;
+                padding-right: 4px;
+                color: var(--text);
+            }
+
+            .library-track {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                padding: 9px 10px;
+                border-radius: 10px;
+                background: rgba(255,255,255,0.04);
+                border: 1px solid rgba(255,255,255,0.08);
+                cursor: pointer;
+                font-size: 13px;
+            }
+
+            .library-track.active {
+                background: rgba(125, 211, 252, 0.12);
+                border-color: rgba(125, 211, 252, 0.3);
+            }
+
+            .library-track-name {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .music-empty {
+                color: var(--muted);
+                font-size: 13px;
+                line-height: 1.6;
+                padding: 10px 4px;
+            }
+
+            .music-top {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 10px;
+            }
+
+            .music-title {
+                font-size: 12px;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                opacity: 0.8;
+            }
+
+            .music-search {
+                width: 100%;
+                box-sizing: border-box;
+                background: rgba(255,255,255,0.04);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 10px;
+                color: var(--text);
+                padding: 8px 10px;
+                margin-bottom: 10px;
+            }
+
+            .music-controls {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+            }
+
+            .music-btn {
+                background: rgba(255,255,255,0.06);
+                color: var(--text);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 8px;
+                padding: 7px 10px;
+                cursor: pointer;
+            }
+
+            .music-btn.primary {
+                background: linear-gradient(135deg, var(--accent), var(--accent-2));
+                color: #0b1720;
+                border: none;
+                font-weight: 700;
+            }
+
+            .music-name {
+                flex: 1;
+                font-size: 12px;
+                text-align: center;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .editor-body {
+                background: rgba(15, 23, 42, 0.32);
+                padding: 0;
+                height: calc(100% - 45px);
+            }
+
+            .editor-body textarea {
+                width: 100%;
+                height: 100%;
+                box-sizing: border-box;
+                resize: none;
+                border: none;
+                outline: none;
+                background: rgba(15, 23, 42, 0.15);
+                color: var(--text);
+                font: 15px/1.5 "Segoe UI", sans-serif;
+                padding: 18px;
+            }
+
+            .drag-body {
+                padding: 18px 16px;
+                font-size: 14px;
+                line-height: 1.6;
+                color: var(--muted);
+            }
+
+            .toggle-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 18px;
+            }
+
+            .toggle {
+                width: 42px;
+                height: 22px;
+                background: rgba(255,255,255,0.18);
+                border-radius: 999px;
+                position: relative;
+                cursor: pointer;
+                transition: 0.2s ease;
+            }
+
+            .toggle::after {
+                content: "";
+                position: absolute;
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                background: #fff;
+                top: 3px;
+                left: 4px;
+                transition: 0.2s ease;
+            }
+
+            body.light-mode .toggle::after {
+                left: 22px;
+            }
+
+            @media (max-width: 640px) {
+                .desktop-icons {
+                    grid-template-columns: repeat(3, minmax(60px, 1fr));
+                    width: calc(100% - 30px);
+                    top: 70px;
+                    left: 15px;
+                }
+
+                .desktop-window {
+                    top: 180px;
+                }
+
+                .drag-window {
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: min(300px, calc(100% - 32px));
+                }
+            }
+            </style>
+    </head>
+    <body>
+        <div class="taskbar">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button class="start-btn" id="startButton">Start</button>
+                <div class="brand">OM-webOS</div>
+            </div>
+            <div id="clock" class="clock">Loading...</div>
+        </div>
+
+        <div class="desktop">
+            <div class="desktop-icons">
+                <div class="app-icon" data-app="welcome">
+                    <div class="icon-surface">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18"/></svg>
+                    </div>
+                    <div>About</div>
+                </div>
+                <div class="app-icon" data-app="projects">
+                    <div class="icon-surface" style="background: linear-gradient(135deg, #f9a8d4, #a78bfa);">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V6l8-3 8 3v12l-8 3-8-3zm8-15v15m0-15 8 3m-8 12 8-3M4 8l8 3"/></svg>
+                    </div>
+                    <div>Projects</div>
+                </div>
+                <div class="app-icon" data-app="notes">
+                    <div class="icon-surface" style="background: linear-gradient(135deg, #fbbf24, #f97316);">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l5 5v13H7zM15 3v5h5M9 12h8M9 16h8"/></svg>
+                    </div>
+                    <div>Notes</div>
+                </div>
+                <div class="app-icon" data-app="editor">
+                    <div class="icon-surface" style="background: linear-gradient(135deg, #a5b4fc, #60a5fa);">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 9-9-3-3-9 9-1 4zm10-12 3 3"/></svg>
+                    </div>
+                    <div>Text</div>
+                </div>
+                <div class="app-icon" data-app="settings">
+                    <div class="icon-surface" style="background: linear-gradient(135deg, #34d399, #10b981);">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v3M12 18v3M4.93 4.93l2.12 2.12M17 17l2.12 2.12M3 12h3M18 12h3M4.93 19.07l2.12-2.12M17 7l2.12-2.12M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/></svg>
+                    </div>
+                    <div>Theme</div>
+                </div>
+                <div class="app-icon" data-app="music">
+                    <div class="icon-surface" style="background: linear-gradient(135deg, #fda4af, #fb7185);">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l10-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm10-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>
+                    </div>
+                    <div>Music</div>
+                </div>
+            </div>
+
+            <div class="window about-window" id="welcomeWindow" style="top:120px; left:50%; transform:translateX(-50%); width:min(640px, calc(100% - 40px));">
+                <div class="window-header" id="welcomeWindowheader">
+                    <span>About / Files</span>
+                    <div class="window-controls">
+                        <span class="dot red" data-action="close" data-target="welcomeWindow" data-tooltip="Close" title="Close"></span>
+                        <span class="dot yellow" data-action="minimize" data-target="welcomeWindow" data-tooltip="Minimize" title="Minimize"></span>
+                        <span class="dot green" data-action="maximize" data-target="welcomeWindow" data-tooltip="Maximize" title="Maximize"></span>
+                    </div>
+                </div>
+                <div class="window-body">
+                    <div class="about-shell">
+                        <aside class="file-sidebar">
+                            <h4>Files</h4>
+                            <div class="file-actions">
+                                <button class="soft-btn" id="openFileBtn" type="button">Open</button>
+                                <button class="soft-btn" id="renameFileBtn" type="button">Rename</button>
+                                <button class="soft-btn" id="saveFileBtn" type="button">Save</button>
+                            </div>
+                            <div class="file-list" id="fileList"></div>
+                        </aside>
+                        <main class="file-main">
+                            <div class="file-preview" id="filePreview">Select a file to preview it here.</div>
+                            <div class="download-row">
+                                <button class="soft-btn" id="downloadSelectedBtn" type="button">Download selected</button>
+                            </div>
+                        </main>
+                    </div>
+                </div>
+            </div>
+
+            <div class="window window-panel hidden" id="projectsWindow" style="top:180px; left:60%; width:300px;">
+                <div class="window-header" id="projectsWindowheader">
+                    <span>Projects</span>
+                    <div class="window-controls">
+                        <span class="dot red" data-action="close" data-target="projectsWindow" data-tooltip="Close" title="Close"></span>
+                        <span class="dot yellow" data-action="minimize" data-target="projectsWindow" data-tooltip="Minimize" title="Minimize"></span>
+                        <span class="dot green" data-action="maximize" data-target="projectsWindow" data-tooltip="Maximize" title="Maximize"></span>
+                    </div>
+                </div>
+                <div class="drag-body">
+                    <strong>Featured Work</strong><br>
+                    Portfolio website<br>
+                    WebOS concept<br>
+                    Interactive UI experiments
+                </div>
+            </div>
+
+            <div class="window window-panel hidden" id="notesWindow" style="top:210px; left:52%; width:320px;">
+                <div class="window-header" id="notesWindowheader">
+                    <span>Notes</span>
+                    <div class="window-controls">
+                        <span class="dot red" data-action="close" data-target="notesWindow" data-tooltip="Close" title="Close"></span>
+                        <span class="dot yellow" data-action="minimize" data-target="notesWindow" data-tooltip="Minimize" title="Minimize"></span>
+                        <span class="dot green" data-action="maximize" data-target="notesWindow" data-tooltip="Maximize" title="Maximize"></span>
+                    </div>
+                </div>
+                <div class="drag-body">
+                    We build simple ideas that feel premium.<br><br>
+                    Keep the interface calm, modern, and useful.
+                </div>
+            </div>
+
+            <div class="window window-panel hidden" id="settingsWindow" style="top:160px; left:58%; width:300px;">
+                <div class="window-header" id="settingsWindowheader">
+                    <span>Settings</span>
+                    <div class="window-controls">
+                        <span class="dot red" data-action="close" data-target="settingsWindow" data-tooltip="Close" title="Close"></span>
+                        <span class="dot yellow" data-action="minimize" data-target="settingsWindow" data-tooltip="Minimize" title="Minimize"></span>
+                        <span class="dot green" data-action="maximize" data-target="settingsWindow" data-tooltip="Maximize" title="Maximize"></span>
+                    </div>
+                </div>
+                <div class="drag-body">
+                    <strong>Theme Options</strong>
+                    <div class="toggle-row">
+                        <span>Dark / Light</span>
+                        <div class="toggle" id="themeToggle" aria-label="Toggle theme"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="window editor-window hidden" id="editorWindow" style="top:150px; left:50%; transform:translateX(-50%);">
+                <div class="window-header" id="editorWindowheader">
+                    <span>Text Editor</span>
+                    <div class="window-controls">
+                        <span class="dot red" data-action="close" data-target="editorWindow" data-tooltip="Close" title="Close"></span>
+                        <span class="dot yellow" data-action="minimize" data-target="editorWindow" data-tooltip="Minimize" title="Minimize"></span>
+                        <span class="dot green" data-action="maximize" data-target="editorWindow" data-tooltip="Maximize" title="Maximize"></span>
+                    </div>
+                </div>
+                <div class="editor-toolbar">
+                    <button class="soft-btn" id="saveEditorBtn" type="button">Save</button>
+                    <button class="soft-btn" id="clearEditorBtn" type="button">Clear</button>
+                </div>
+                <div class="window-body editor-body">
+                    <textarea id="editorTextarea" aria-label="Text editor">Hello Om,
+
+This is your basic text editor.
+Write anything here.</textarea>
+                </div>
+            </div>
+
+            <div class="window music-window hidden" id="musicWindow" style="top:140px; left:50%; transform:translateX(-50%);">
+                <div class="window-header" id="musicWindowheader">
+                    <span>Music Library</span>
+                    <div class="window-controls">
+                        <span class="dot red" data-action="close" data-target="musicWindow" data-tooltip="Close" title="Close"></span>
+                        <span class="dot yellow" data-action="minimize" data-target="musicWindow" data-tooltip="Minimize" title="Minimize"></span>
+                        <span class="dot green" data-action="maximize" data-target="musicWindow" data-tooltip="Maximize" title="Maximize"></span>
+                    </div>
+                </div>
+                <div class="music-window-body">
+                    <div class="music-upload-row">
+                        <label class="upload-label" for="musicUploadInput">Upload MP3</label>
+                        <input id="musicUploadInput" type="file" accept=".mp3,audio/mpeg" multiple hidden />
+                    </div>
+                    <input class="music-search" id="musicSearch" type="text" placeholder="Search music..." />
+                    <div class="music-controls">
+                        <button class="music-btn" id="prevTrackBtn" type="button">⏮</button>
+                        <button class="music-btn primary" id="playPauseBtn" type="button">Play</button>
+                        <button class="music-btn" id="nextTrackBtn" type="button">⏭</button>
+                    </div>
+                    <div class="music-name" id="musicName">No music uploaded yet</div>
+                    <div class="music-library-list" id="musicLibraryList"></div>
+                    <audio id="audioPlayer"></audio>
+                </div>
+            </div>
+        </div>
+
+        <div class="music-panel">
+            <div class="music-top">
+                <div class="music-title">Music</div>
+                <span id="musicStatus">Paused</span>
+            </div>
+            <input class="music-search" id="musicSearchMini" type="text" placeholder="Search music..." />
+            <div class="music-controls">
+                <button class="music-btn" id="prevTrackBtnMini" type="button">⏮</button>
+                <button class="music-btn primary" id="playPauseBtnMini" type="button">Play</button>
+                <button class="music-btn" id="nextTrackBtnMini" type="button">⏭</button>
+            </div>
+            <div class="music-name" id="musicNameMini">No music uploaded yet</div>
+            <audio id="audioPlayerMini"></audio>
+        </div>
+
+        <div class="dock">
+            <div class="dock-item" data-app="welcome" title="About">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18"/></svg>
+            </div>
+            <div class="dock-item" data-app="projects" title="Projects" style="background: linear-gradient(135deg, #f9a8d4, #a78bfa);">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V6l8-3 8 3v12l-8 3-8-3zm8-15v15m0-15 8 3m-8 12 8-3M4 8l8 3"/></svg>
+            </div>
+            <div class="dock-item" data-app="notes" title="Notes" style="background: linear-gradient(135deg, #fbbf24, #f97316);">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l5 5v13H7zM15 3v5h5M9 12h8M9 16h8"/></svg>
+            </div>
+            <div class="dock-item" data-app="editor" title="Text Editor" style="background: linear-gradient(135deg, #a5b4fc, #60a5fa);">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 9-9-3-3-9 9-1 4zm10-12 3 3"/></svg>
+            </div>
+            <div class="dock-item" data-app="settings" title="Theme" style="background: linear-gradient(135deg, #34d399, #10b981);">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v3M12 18v3M4.93 4.93l2.12 2.12M17 17l2.12 2.12M3 12h3M18 12h3M4.93 19.07l2.12-2.12M17 7l2.12-2.12M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/></svg>
+            </div>
+        </div>
+
+        <div class="start-menu" id="startMenu">
+            <div class="menu-item" data-app="welcome"><span class="menu-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18"/></svg></span>About</div>
+            <div class="menu-item" data-app="projects"><span class="menu-icon" style="background:linear-gradient(135deg,#f9a8d4,#a78bfa);"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V6l8-3 8 3v12l-8 3-8-3zm8-15v15m0-15 8 3m-8 12 8-3M4 8l8 3"/></svg></span>Projects</div>
+            <div class="menu-item" data-app="notes"><span class="menu-icon" style="background:linear-gradient(135deg,#fbbf24,#f97316);"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l5 5v13H7zM15 3v5h5M9 12h8M9 16h8"/></svg></span>Notes</div>
+            <div class="menu-item" data-app="editor"><span class="menu-icon" style="background:linear-gradient(135deg,#a5b4fc,#60a5fa);"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 9-9-3-3-9 9-1 4zm10-12 3 3"/></svg></span>Text</div>
+            <div class="menu-item" data-app="settings"><span class="menu-icon" style="background:linear-gradient(135deg,#34d399,#10b981);"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v3M12 18v3M4.93 4.93l2.12 2.12M17 17l2.12 2.12M3 12h3M18 12h3M4.93 19.07l2.12-2.12M17 7l2.12-2.12M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/></svg></span>Theme</div>
+            <div class="menu-item" data-app="music"><span class="menu-icon" style="background:linear-gradient(135deg,#fda4af,#fb7185);"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l10-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm10-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg></span>Music</div>
+        </div>
+
+        <script>
+            function updateClock() {
+                const now = new Date();
+                const date = now.toLocaleDateString('en-US', {
+                    month: 'numeric',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                const time = now.toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                });
+
+                document.getElementById('clock').textContent = date + ' ' + time;
+            }
+
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            const startButton = document.getElementById('startButton');
+            const startMenu = document.getElementById('startMenu');
+            startButton.addEventListener('click', () => {
+                startMenu.classList.toggle('open');
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!startMenu.contains(event.target) && !startButton.contains(event.target)) {
+                    startMenu.classList.remove('open');
+                }
+            });
+
+            const themeToggle = document.getElementById('themeToggle');
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('light-mode');
+            });
+
+            const fileSystem = {
+                'about.txt': 'Hello, I am Om. I build digital experiences and creative interfaces.',
+                'projects.txt': 'Portfolio website\nWebOS concept\nModern UI experiments',
+                'notes.txt': 'Keep ideas simple. Make tools feel calm and useful.'
+            };
+
+            let selectedFileName = 'about.txt';
+
+            function renderFileList() {
+                const fileList = document.getElementById('fileList');
+                const names = Object.keys(fileSystem);
+
+                fileList.innerHTML = names.map((name) => {
+                    const active = name === selectedFileName ? 'active' : '';
+                    return `
+                        <div class="file-item ${active}" data-file-name="${name}">
+                            <span class="file-item-label">${name}</span>
+                            <span>•</span>
+                        </div>
+                    `;
+                }).join('');
+
+                document.querySelectorAll('.file-item').forEach((item) => {
+                    item.addEventListener('click', () => {
+                        selectedFileName = item.dataset.fileName;
+                        renderFileList();
+                        showFile(selectedFileName);
+                        if (document.getElementById('editorWindow').classList.contains('hidden') === false) {
+                            document.getElementById('editorTextarea').value = fileSystem[selectedFileName] || '';
+                        }
+                    });
+                });
+            }
+
+            function showFile(fileName) {
+                const preview = document.getElementById('filePreview');
+                const fileContent = fileSystem[fileName] || 'File is empty.';
+                preview.textContent = fileContent;
+
+                if (document.getElementById('editorWindow').classList.contains('hidden') === false) {
+                    document.getElementById('editorTextarea').value = fileContent;
+                }
+            }
+
+            function saveEditorContent() {
+                if (!selectedFileName) return;
+                fileSystem[selectedFileName] = document.getElementById('editorTextarea').value;
+                renderFileList();
+                showFile(selectedFileName);
+            }
+
+            document.getElementById('saveFileBtn').addEventListener('click', saveEditorContent);
+            document.getElementById('openFileBtn').addEventListener('click', () => {
+                if (!selectedFileName) return;
+                document.getElementById('editorTextarea').value = fileSystem[selectedFileName] || '';
+                openApp('editor');
+            });
+
+            document.getElementById('renameFileBtn').addEventListener('click', () => {
+                if (!selectedFileName) return;
+                const currentName = selectedFileName;
+                const newName = window.prompt('Rename file:', currentName);
+                if (!newName || !newName.trim()) return;
+
+                const cleanName = newName.trim();
+                if (cleanName === currentName) return;
+                if (fileSystem[cleanName]) {
+                    alert('A file with that name already exists.');
+                    return;
+                }
+
+                fileSystem[cleanName] = fileSystem[currentName];
+                delete fileSystem[currentName];
+                selectedFileName = cleanName;
+                renderFileList();
+                showFile(selectedFileName);
+            });
+
+            document.getElementById('saveEditorBtn').addEventListener('click', saveEditorContent);
+            document.getElementById('clearEditorBtn').addEventListener('click', () => {
+                document.getElementById('editorTextarea').value = '';
+                saveEditorContent();
+            });
+
+            document.getElementById('editorTextarea').addEventListener('input', () => {
+                if (selectedFileName) {
+                    fileSystem[selectedFileName] = document.getElementById('editorTextarea').value;
+                    showFile(selectedFileName);
+                }
+            });
+
+            renderFileList();
+            showFile(selectedFileName);
+
+            const appMap = {
+                welcome: document.getElementById('welcomeWindow'),
+                projects: document.getElementById('projectsWindow'),
+                notes: document.getElementById('notesWindow'),
+                editor: document.getElementById('editorWindow'),
+                settings: document.getElementById('settingsWindow'),
+                music: document.getElementById('musicWindow')
+            };
+
+            function openApp(name) {
+                Object.entries(appMap).forEach(([key, el]) => {
+                    if (!el) return;
+                    const isActive = key === name;
+                    el.classList.toggle('hidden', !isActive);
+                    if (isActive) {
+                        el.style.display = 'block';
+                    }
+                });
+
+                if (name === 'editor' && selectedFileName) {
+                    document.getElementById('editorTextarea').value = fileSystem[selectedFileName] || '';
+                }
+
+                startMenu.classList.remove('open');
+            }
+
+            let musicTracks = [];
+            let currentTrackIndex = -1;
+
+            const audioPlayer = document.getElementById('audioPlayer');
+            const audioPlayerMini = document.getElementById('audioPlayerMini');
+            const musicName = document.getElementById('musicName');
+            const musicNameMini = document.getElementById('musicNameMini');
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            const playPauseBtnMini = document.getElementById('playPauseBtnMini');
+            const musicStatus = document.getElementById('musicStatus');
+            const musicSearch = document.getElementById('musicSearch');
+            const musicSearchMini = document.getElementById('musicSearchMini');
+            const musicLibraryList = document.getElementById('musicLibraryList');
+            const musicUploadInput = document.getElementById('musicUploadInput');
+
+            audioPlayer.preload = 'auto';
+            audioPlayer.volume = 0.7;
+            audioPlayerMini.preload = 'auto';
+            audioPlayerMini.volume = 0.7;
+
+            function syncPlayerSource() {
+                const chosenTrack = musicTracks[currentTrackIndex];
+                if (!chosenTrack) {
+                    musicName.textContent = 'No music uploaded yet';
+                    musicNameMini.textContent = 'No music uploaded yet';
+                    musicStatus.textContent = 'Paused';
+                    playPauseBtn.textContent = 'Play';
+                    playPauseBtnMini.textContent = 'Play';
+                    return;
+                }
+
+                const source = chosenTrack.url;
+                audioPlayer.src = source;
+                audioPlayerMini.src = source;
+                musicName.textContent = chosenTrack.name;
+                musicNameMini.textContent = chosenTrack.name;
+                musicStatus.textContent = 'Paused';
+                playPauseBtn.textContent = 'Play';
+                playPauseBtnMini.textContent = 'Play';
+            }
+
+            function updateMusicLibrary() {
+                if (!musicLibraryList) return;
+
+                if (musicTracks.length === 0) {
+                    musicLibraryList.innerHTML = '<div class="music-empty">Upload MP3 files to build your music library.</div>';
+                    return;
+                }
+
+                musicLibraryList.innerHTML = musicTracks.map((track, index) => {
+                    const active = index === currentTrackIndex ? 'active' : '';
+                    return `
+                        <div class="library-track ${active}" data-track-index="${index}">
+                            <span class="library-track-name">${track.name}</span>
+                            <span>${index === currentTrackIndex && !audioPlayer.paused ? '▶' : '•'}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                musicLibraryList.querySelectorAll('.library-track').forEach((item) => {
+                    item.addEventListener('click', () => {
+                        const index = Number(item.dataset.trackIndex);
+                        loadTrack(index, false);
+                    });
+                });
+            }
+
+            function loadTrack(index, autoPlay = false) {
+                if (!musicTracks.length) {
+                    musicStatus.textContent = 'No track available';
+                    return;
+                }
+
+                currentTrackIndex = (index + musicTracks.length) % musicTracks.length;
+                const track = musicTracks[currentTrackIndex];
+
+                audioPlayer.pause();
+                audioPlayerMini.pause();
+                audioPlayer.src = track.url;
+                audioPlayerMini.src = track.url;
+                audioPlayer.load();
+                audioPlayerMini.load();
+                musicName.textContent = track.name;
+                musicNameMini.textContent = track.name;
+                musicStatus.textContent = 'Paused';
+                playPauseBtn.textContent = 'Play';
+                playPauseBtnMini.textContent = 'Play';
+                updateMusicLibrary();
+
+                if (autoPlay) {
+                    const playPromise = audioPlayer.play();
+                    const playPromiseMini = audioPlayerMini.play();
+                    Promise.allSettled([playPromise, playPromiseMini]).then(() => {
+                        playPauseBtn.textContent = 'Pause';
+                        playPauseBtnMini.textContent = 'Pause';
+                        musicStatus.textContent = 'Playing';
+                    }).catch(() => {
+                        musicStatus.textContent = 'Click Play to start';
+                    });
+                }
+            }
+
+            function applySearch() {
+                const query = (musicSearch.value || musicSearchMini.value || '').trim().toLowerCase();
+                const filtered = query ? musicTracks.filter((track) => track.name.toLowerCase().includes(query)) : musicTracks;
+
+                if (filtered.length === 0) {
+                    musicName.textContent = 'No tracks found';
+                    musicNameMini.textContent = 'No tracks found';
+                    return;
+                }
+
+                const foundTrack = filtered[0];
+                const index = musicTracks.findIndex((track) => track.name === foundTrack.name);
+                if (index >= 0) {
+                    loadTrack(index, false);
+                }
+            }
+
+            function togglePlayback() {
+                if (!musicTracks.length) {
+                    musicStatus.textContent = 'No track available';
+                    return;
+                }
+
+                const currentAudio = audioPlayer;
+                if (currentAudio.paused) {
+                    const playPromise = currentAudio.play();
+                    const miniPromise = audioPlayerMini.play();
+                    Promise.allSettled([playPromise, miniPromise]).then(() => {
+                        playPauseBtn.textContent = 'Pause';
+                        playPauseBtnMini.textContent = 'Pause';
+                        musicStatus.textContent = 'Playing';
+                    }).catch(() => {
+                        musicStatus.textContent = 'Audio blocked until you click again';
+                    });
+                } else {
+                    currentAudio.pause();
+                    audioPlayerMini.pause();
+                    playPauseBtn.textContent = 'Play';
+                    playPauseBtnMini.textContent = 'Play';
+                    musicStatus.textContent = 'Paused';
+                }
+            }
+
+            musicSearch.addEventListener('input', applySearch);
+            musicSearchMini.addEventListener('input', applySearch);
+
+            playPauseBtn.addEventListener('click', togglePlayback);
+            playPauseBtnMini.addEventListener('click', togglePlayback);
+
+            document.getElementById('prevTrackBtn').addEventListener('click', () => {
+                if (musicTracks.length) loadTrack(currentTrackIndex - 1, false);
+            });
+            document.getElementById('prevTrackBtnMini').addEventListener('click', () => {
+                if (musicTracks.length) loadTrack(currentTrackIndex - 1, false);
+            });
+
+            document.getElementById('nextTrackBtn').addEventListener('click', () => {
+                if (musicTracks.length) loadTrack(currentTrackIndex + 1, false);
+            });
+            document.getElementById('nextTrackBtnMini').addEventListener('click', () => {
+                if (musicTracks.length) loadTrack(currentTrackIndex + 1, false);
+            });
+
+            audioPlayer.addEventListener('ended', () => {
+                if (musicTracks.length) loadTrack(currentTrackIndex + 1, true);
+            });
+            audioPlayerMini.addEventListener('ended', () => {
+                if (musicTracks.length) loadTrack(currentTrackIndex + 1, true);
+            });
+
+            audioPlayer.addEventListener('error', () => {
+                if (musicTracks.length) {
+                    musicStatus.textContent = 'Track failed, trying next...';
+                    loadTrack(currentTrackIndex + 1, false);
+                }
+            });
+
+            musicUploadInput.addEventListener('change', (event) => {
+                const files = Array.from(event.target.files || []);
+                const mp3Files = files.filter((file) => /audio\/mpeg|\.mp3$/i.test(file.type || file.name));
+
+                if (!mp3Files.length) {
+                    alert('Please upload MP3 files only.');
+                    return;
+                }
+
+                mp3Files.forEach((file) => {
+                    const fileUrl = URL.createObjectURL(file);
+                    musicTracks.push({ name: file.name.replace(/\.mp3$/i, ''), url: fileUrl, file });
+                });
+
+                updateMusicLibrary();
+                if (currentTrackIndex === -1) {
+                    loadTrack(0, false);
+                } else {
+                    loadTrack(currentTrackIndex, false);
+                }
+
+                event.target.value = '';
+            });
+
+            updateMusicLibrary();
+            syncPlayerSource();
+
+            document.querySelectorAll('[data-app]').forEach((element) => {
+                element.addEventListener('click', () => {
+                    const app = element.dataset.app;
+                    if (appMap[app]) {
+                        openApp(app);
+                    }
+                });
+            });
+
+            function restoreWindow(target) {
+                if (!target.dataset.defaultState) return;
+                const previousState = JSON.parse(target.dataset.defaultState);
+                Object.keys(previousState).forEach((key) => {
+                    target.style[key] = previousState[key];
+                });
+                target.dataset.maximized = 'false';
+                target.style.display = 'block';
+            }
+
+            document.querySelectorAll('.dot').forEach((button) => {
+                button.addEventListener('mousedown', (event) => {
+                    event.stopPropagation();
+                });
+
+                button.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    const action = event.target.dataset.action;
+                    const targetId = event.target.dataset.target;
+                    const target = document.getElementById(targetId);
+
+                    if (!target) return;
+
+                    if (action === 'close') {
+                        target.classList.add('hidden');
+                        target.style.display = 'none';
+                    }
+
+                    if (action === 'minimize') {
+                        target.dataset.minimized = 'true';
+                        target.style.display = 'none';
+                    }
+
+                    if (action === 'maximize') {
+                        const isMaximized = target.dataset.maximized === 'true';
+
+                        if (isMaximized) {
+                            restoreWindow(target);
+                            return;
+                        }
+
+                        target.dataset.defaultState = JSON.stringify({
+                            left: target.style.left || '',
+                            top: target.style.top || '',
+                            width: target.style.width || '',
+                            height: target.style.height || '',
+                            transform: target.style.transform || '',
+                            display: target.style.display || 'block'
+                        });
+
+                        target.dataset.maximized = 'true';
+                        target.style.left = '50%';
+                        target.style.top = '80px';
+                        target.style.transform = 'translateX(-50%)';
+                        target.style.width = 'min(920px, calc(100% - 40px))';
+                        target.style.height = 'min(74vh, 680px)';
+                        target.style.display = 'block';
+                    }
+                });
+            });
+
+            function dragElement(element) {
+                var initialX = 0;
+                var initialY = 0;
+                var currentX = 0;
+                var currentY = 0;
+                var dragHeader = document.getElementById(element.id + "header");
+
+                if (dragHeader) {
+                    dragHeader.onmousedown = function (e) {
+                        if (e.target.closest('.dot')) {
+                            return;
+                        }
+                        startDragging(e);
+                    };
+                } else {
+                    element.onmousedown = function (e) {
+                        if (e.target.closest('.dot')) {
+                            return;
+                        }
+                        startDragging(e);
+                    };
+                }
+
+                function startDragging(e) {
+                    e = e || window.event;
+                    e.preventDefault();
+                    initialX = e.clientX;
+                    initialY = e.clientY;
+                    document.onmouseup = stopDragging;
+                    document.onmousemove = elementDrag;
+                }
+
+                function elementDrag(e) {
+                    e = e || window.event;
+                    e.preventDefault();
+                    currentX = initialX - e.clientX;
+                    currentY = initialY - e.clientY;
+                    initialX = e.clientX;
+                    initialY = e.clientY;
+                    element.style.top = (element.offsetTop - currentY) + "px";
+                    element.style.left = (element.offsetLeft - currentX) + "px";
+                }
+
+                function stopDragging() {
+                    document.onmouseup = null;
+                    document.onmousemove = null;
+                }
+            }
+
+            Object.values(appMap).forEach((windowEl) => {
+                if (windowEl) dragElement(windowEl);
+            });
+        </script>
+    </body>
+</html>
