@@ -17,6 +17,8 @@ A sleek, browser-based desktop environment inspired by macOS, featuring a comple
 2. Start exploring the desktop environment
 3. Create files, edit text, and upload your music files
 
+## Alternate method
+1.use "dockerfile" already provided to configure a docker container and run the html.
 
 ## Credits
 
@@ -25,7 +27,13 @@ This project was created with guidance from resources at [hackclub.com](https://
 ## License
 
 See the LICENSE file for more information
+Please note that the license used is provided by github.
+
 
 ---
 
 Enjoy exploring your personal WebOS desktop! 🚀
+
+All files available at "https://github.com/omguptaogwhitehathacker-svg/om-s-webos"
+NOTE:This project has been marked as compleated no new commits will be made.
+;] contact at omguptaogwhitehathacker@gmail.com

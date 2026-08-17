@@ -748,6 +748,12 @@
                     </div>
                     <div>Music</div>
                 </div>
+                <div class="app-icon" data-app="contact">
+                    <div class="icon-surface" style="background: linear-gradient(135deg, #f472b6, #ec4899);">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/></svg>
+                    </div>
+                    <div>Contact</div>
+                </div>
             </div>
 
             <div class="window about-window" id="welcomeWindow" style="top:120px; left:50%; transform:translateX(-50%); width:min(640px, calc(100% - 40px));">
@@ -851,6 +857,25 @@ Write anything here.</textarea>
                 </div>
             </div>
 
+            <div class="window window-panel hidden" id="contactWindow" style="top:200px; left:55%; width:320px;">
+                <div class="window-header" id="contactWindowheader">
+                    <span>Contact</span>
+                    <div class="window-controls">
+                        <span class="dot red" data-action="close" data-target="contactWindow" data-tooltip="Close" title="Close"></span>
+                        <span class="dot yellow" data-action="minimize" data-target="contactWindow" data-tooltip="Minimize" title="Minimize"></span>
+                        <span class="dot green" data-action="maximize" data-target="contactWindow" data-tooltip="Maximize" title="Maximize"></span>
+                    </div>
+                </div>
+                <div class="drag-body">
+                    <strong>Get in Touch</strong><br><br>
+                    <div style="word-break: break-all; font-size: 14px;">
+                        📧 <a href="mailto:omguptaogwhitehathacker@gmail.com" style="color: var(--accent); text-decoration: none; cursor: pointer;">omguptaogwhitehathacker@gmail.com</a>
+                    </div>
+                    <br>
+                    <button class="soft-btn" id="copyEmailBtn" type="button" style="width: 100%; cursor: pointer;">Copy Email</button>
+                </div>
+            </div>
+
             <div class="window music-window hidden" id="musicWindow" style="top:140px; left:50%; transform:translateX(-50%);">
                 <div class="window-header" id="musicWindowheader">
                     <span>Music Library</span>
@@ -909,6 +934,9 @@ Write anything here.</textarea>
             <div class="dock-item" data-app="settings" title="Theme" style="background: linear-gradient(135deg, #34d399, #10b981);">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v3M12 18v3M4.93 4.93l2.12 2.12M17 17l2.12 2.12M3 12h3M18 12h3M4.93 19.07l2.12-2.12M17 7l2.12-2.12M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/></svg>
             </div>
+            <div class="dock-item" data-app="contact" title="Contact" style="background: linear-gradient(135deg, #f472b6, #ec4899);">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/></svg>
+            </div>
         </div>
 
         <div class="start-menu" id="startMenu">
@@ -918,6 +946,7 @@ Write anything here.</textarea>
             <div class="menu-item" data-app="editor"><span class="menu-icon" style="background:linear-gradient(135deg,#a5b4fc,#60a5fa);"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 9-9-3-3-9 9-1 4zm10-12 3 3"/></svg></span>Text</div>
             <div class="menu-item" data-app="settings"><span class="menu-icon" style="background:linear-gradient(135deg,#34d399,#10b981);"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v3M12 18v3M4.93 4.93l2.12 2.12M17 17l2.12 2.12M3 12h3M18 12h3M4.93 19.07l2.12-2.12M17 7l2.12-2.12M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/></svg></span>Theme</div>
             <div class="menu-item" data-app="music"><span class="menu-icon" style="background:linear-gradient(135deg,#fda4af,#fb7185);"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l10-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm10-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg></span>Music</div>
+            <div class="menu-item" data-app="contact"><span class="menu-icon" style="background:linear-gradient(135deg,#f472b6,#ec4899);"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/></svg></span>Contact</div>
         </div>
 
         <script>
@@ -1058,7 +1087,8 @@ Write anything here.</textarea>
                 notes: document.getElementById('notesWindow'),
                 editor: document.getElementById('editorWindow'),
                 settings: document.getElementById('settingsWindow'),
-                music: document.getElementById('musicWindow')
+                music: document.getElementById('musicWindow'),
+                contact: document.getElementById('contactWindow')
             };
 
             function openApp(name) {
@@ -1422,6 +1452,20 @@ Write anything here.</textarea>
 
             Object.values(appMap).forEach((windowEl) => {
                 if (windowEl) dragElement(windowEl);
+            });
+
+            document.getElementById('copyEmailBtn').addEventListener('click', () => {
+                const email = 'omguptaogwhitehathacker@gmail.com';
+                navigator.clipboard.writeText(email).then(() => {
+                    const btn = document.getElementById('copyEmailBtn');
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Copied!';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 2000);
+                }).catch(() => {
+                    alert('Failed to copy email');
+                });
             });
         </script>
     </body>
