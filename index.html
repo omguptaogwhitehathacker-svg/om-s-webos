@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>om's WebOS!</title>
+        <title>om's (D3RLORD3'S) WebOS!</title>
         <style>
             :root {
                 --bg: rgba(255,255,255,0.08);
@@ -867,9 +867,9 @@ Write anything here.</textarea>
                     </div>
                     <input class="music-search" id="musicSearch" type="text" placeholder="Search music..." />
                     <div class="music-controls">
-                        <button class="music-btn" id="prevTrackBtn" type="button">⏮</button>
-                        <button class="music-btn primary" id="playPauseBtn" type="button">Play</button>
-                        <button class="music-btn" id="nextTrackBtn" type="button">⏭</button>
+                        <button class="music-btn" id="prevTrackBtn" type="button" aria-label="Previous track">Prev</button>
+                        <button class="music-btn primary" id="playPauseBtn" type="button" aria-label="Play or pause">Play</button>
+                        <button class="music-btn" id="nextTrackBtn" type="button" aria-label="Next track">Next</button>
                     </div>
                     <div class="music-name" id="musicName">No music uploaded yet</div>
                     <div class="music-library-list" id="musicLibraryList"></div>
@@ -885,9 +885,9 @@ Write anything here.</textarea>
             </div>
             <input class="music-search" id="musicSearchMini" type="text" placeholder="Search music..." />
             <div class="music-controls">
-                <button class="music-btn" id="prevTrackBtnMini" type="button">⏮</button>
-                <button class="music-btn primary" id="playPauseBtnMini" type="button">Play</button>
-                <button class="music-btn" id="nextTrackBtnMini" type="button">⏭</button>
+                <button class="music-btn" id="prevTrackBtnMini" type="button" aria-label="Previous track">Prev</button>
+                <button class="music-btn primary" id="playPauseBtnMini" type="button" aria-label="Play or pause">Play</button>
+                <button class="music-btn" id="nextTrackBtnMini" type="button" aria-label="Next track">Next</button>
             </div>
             <div class="music-name" id="musicNameMini">No music uploaded yet</div>
             <audio id="audioPlayerMini"></audio>
@@ -1098,14 +1098,21 @@ Write anything here.</textarea>
             audioPlayerMini.preload = 'auto';
             audioPlayerMini.volume = 0.7;
 
+            function setPlaybackUi(isPlaying) {
+                const playLabel = isPlaying ? 'Pause' : 'Play';
+                const statusText = isPlaying ? 'Playing' : 'Paused';
+
+                playPauseBtn.textContent = playLabel;
+                playPauseBtnMini.textContent = playLabel;
+                musicStatus.textContent = statusText;
+            }
+
             function syncPlayerSource() {
                 const chosenTrack = musicTracks[currentTrackIndex];
                 if (!chosenTrack) {
                     musicName.textContent = 'No music uploaded yet';
                     musicNameMini.textContent = 'No music uploaded yet';
-                    musicStatus.textContent = 'Paused';
-                    playPauseBtn.textContent = 'Play';
-                    playPauseBtnMini.textContent = 'Play';
+                    setPlaybackUi(false);
                     return;
                 }
 
@@ -1114,9 +1121,7 @@ Write anything here.</textarea>
                 audioPlayerMini.src = source;
                 musicName.textContent = chosenTrack.name;
                 musicNameMini.textContent = chosenTrack.name;
-                musicStatus.textContent = 'Paused';
-                playPauseBtn.textContent = 'Play';
-                playPauseBtnMini.textContent = 'Play';
+                setPlaybackUi(false);
             }
 
             function updateMusicLibrary() {
@@ -1129,10 +1134,11 @@ Write anything here.</textarea>
 
                 musicLibraryList.innerHTML = musicTracks.map((track, index) => {
                     const active = index === currentTrackIndex ? 'active' : '';
+                    const nowPlaying = index === currentTrackIndex && !audioPlayer.paused && !audioPlayerMini.paused;
                     return `
                         <div class="library-track ${active}" data-track-index="${index}">
                             <span class="library-track-name">${track.name}</span>
-                            <span>${index === currentTrackIndex && !audioPlayer.paused ? '▶' : '•'}</span>
+                            <span>${nowPlaying ? '▶' : '•'}</span>
                         </div>
                     `;
                 }).join('');
@@ -1142,6 +1148,24 @@ Write anything here.</textarea>
                         const index = Number(item.dataset.trackIndex);
                         loadTrack(index, false);
                     });
+                });
+            }
+
+            function startPlayback() {
+                if (!musicTracks.length) {
+                    musicStatus.textContent = 'No track available';
+                    return;
+                }
+
+                const playPromise = audioPlayer.play();
+                const miniPromise = audioPlayerMini.play();
+
+                Promise.allSettled([playPromise, miniPromise]).then(() => {
+                    setPlaybackUi(true);
+                    updateMusicLibrary();
+                }).catch(() => {
+                    musicStatus.textContent = 'Audio blocked until you click again';
+                    setPlaybackUi(false);
                 });
             }
 
@@ -1162,21 +1186,11 @@ Write anything here.</textarea>
                 audioPlayerMini.load();
                 musicName.textContent = track.name;
                 musicNameMini.textContent = track.name;
-                musicStatus.textContent = 'Paused';
-                playPauseBtn.textContent = 'Play';
-                playPauseBtnMini.textContent = 'Play';
+                setPlaybackUi(false);
                 updateMusicLibrary();
 
                 if (autoPlay) {
-                    const playPromise = audioPlayer.play();
-                    const playPromiseMini = audioPlayerMini.play();
-                    Promise.allSettled([playPromise, playPromiseMini]).then(() => {
-                        playPauseBtn.textContent = 'Pause';
-                        playPauseBtnMini.textContent = 'Pause';
-                        musicStatus.textContent = 'Playing';
-                    }).catch(() => {
-                        musicStatus.textContent = 'Click Play to start';
-                    });
+                    startPlayback();
                 }
             }
 
@@ -1185,6 +1199,7 @@ Write anything here.</textarea>
                 const filtered = query ? musicTracks.filter((track) => track.name.toLowerCase().includes(query)) : musicTracks;
 
                 if (filtered.length === 0) {
+                    musicStatus.textContent = 'No tracks found';
                     musicName.textContent = 'No tracks found';
                     musicNameMini.textContent = 'No tracks found';
                     return;
@@ -1203,23 +1218,13 @@ Write anything here.</textarea>
                     return;
                 }
 
-                const currentAudio = audioPlayer;
-                if (currentAudio.paused) {
-                    const playPromise = currentAudio.play();
-                    const miniPromise = audioPlayerMini.play();
-                    Promise.allSettled([playPromise, miniPromise]).then(() => {
-                        playPauseBtn.textContent = 'Pause';
-                        playPauseBtnMini.textContent = 'Pause';
-                        musicStatus.textContent = 'Playing';
-                    }).catch(() => {
-                        musicStatus.textContent = 'Audio blocked until you click again';
-                    });
+                if (audioPlayer.paused && audioPlayerMini.paused) {
+                    startPlayback();
                 } else {
-                    currentAudio.pause();
+                    audioPlayer.pause();
                     audioPlayerMini.pause();
-                    playPauseBtn.textContent = 'Play';
-                    playPauseBtnMini.textContent = 'Play';
-                    musicStatus.textContent = 'Paused';
+                    setPlaybackUi(false);
+                    updateMusicLibrary();
                 }
             }
 
@@ -1243,6 +1248,11 @@ Write anything here.</textarea>
                 if (musicTracks.length) loadTrack(currentTrackIndex + 1, false);
             });
 
+            audioPlayer.addEventListener('play', () => setPlaybackUi(true));
+            audioPlayerMini.addEventListener('play', () => setPlaybackUi(true));
+            audioPlayer.addEventListener('pause', () => setPlaybackUi(false));
+            audioPlayerMini.addEventListener('pause', () => setPlaybackUi(false));
+
             audioPlayer.addEventListener('ended', () => {
                 if (musicTracks.length) loadTrack(currentTrackIndex + 1, true);
             });
@@ -1251,6 +1261,13 @@ Write anything here.</textarea>
             });
 
             audioPlayer.addEventListener('error', () => {
+                if (musicTracks.length) {
+                    musicStatus.textContent = 'Track failed, trying next...';
+                    loadTrack(currentTrackIndex + 1, false);
+                }
+            });
+
+            audioPlayerMini.addEventListener('error', () => {
                 if (musicTracks.length) {
                     musicStatus.textContent = 'Track failed, trying next...';
                     loadTrack(currentTrackIndex + 1, false);
